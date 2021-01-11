@@ -47,8 +47,9 @@ public class HomeController {
 
 		try {
 			String ip = InetAddress.getLocalHost().getHostAddress();
+			log.info("IP Address:{}", ip);
 			Long credentialsCount = credentialRepo.count();
-			log.info("IP Address:{} CredentialsCount:{}", ip,credentialsCount);
+			log.info("CredentialsCount:{}", credentialsCount);
 		} catch (Exception e) {
 			log.warn("Exception While getting IP, Exception:{}", e.getMessage());
 		}
