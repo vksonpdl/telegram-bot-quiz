@@ -1,1 +1,20 @@
+app:
+  name: telegram-bot-quiz
+  version: v1
 
+
+#mongodb
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+#logging
+logging:
+  level:
+    org:
+      springframework:
+        data: debug
+
+salt:
+  one: uG4fV6xB7kA3yL7h
+  two: ${SALT}
