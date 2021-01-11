@@ -3,17 +3,17 @@ package com.vksonpdl.qstnbnk.cntrlr;
 import java.net.InetAddress;
 import java.util.Date;
 
-import javax.websocket.server.PathParam;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vksonpdl.qstnbnk.model.EncryptionResponse;
+import com.vksonpdl.qstnbnk.repo.CredentialsRepo;
 import com.vksonpdl.qstnbnk.util.HashingUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +24,9 @@ public class HomeController {
 
 	@Autowired
 	HashingUtil hashingUtil;
+	
+	@Autowired
+	CredentialsRepo credentialRepo;
 
 	@GetMapping()
 	public ResponseEntity<String> getMeHome() {
@@ -44,7 +47,8 @@ public class HomeController {
 
 		try {
 			String ip = InetAddress.getLocalHost().getHostAddress();
-			log.info("IP Address:{}", ip);
+			Long credentialsCount = credentialRepo.count();
+			log.info("IP Address:{} CredentialsCount:{}", ip,credentialsCount);
 		} catch (Exception e) {
 			log.warn("Exception While getting IP, Exception:{}", e.getMessage());
 		}
