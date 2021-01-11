@@ -8,6 +8,11 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI}
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+      
+      
 #logging
 logging:
   level:
@@ -18,3 +23,8 @@ logging:
 salt:
   one: uG4fV6xB7kA3yL7h
   two: ${SALT}
+  
+telegram:
+  bot:
+    username: ${TELEGRAM_BOT_UN}
+    token: ${TELEGRAM_BOT_TOKEN}

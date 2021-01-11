@@ -1,23 +1,23 @@
 package com.vksonpdl.qstnbnk.entity;
 
+
+
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Document(collection = "tel_credentials_collection")
+@Document(collection = "question_type_collection")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Credentials {
-	
-	
+public class QuestionType {
+
 	@Id
-	@Indexed(unique = true)
-	private String telUn;		
-	private String email;
-	private String emailCode;
+	private ObjectId _id;
+	private String qstn_typ;
+	
 }

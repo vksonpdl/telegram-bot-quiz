@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.vksonpdl.qstnbnk.entity.Credentials;
 
 @Repository
-public interface CredentialsRepo extends MongoRepository<Credentials, Long>{
+public interface CredentialsRepo extends MongoRepository<Credentials, String>{
 
 }

@@ -20,7 +20,7 @@ public class HashingUtil {
 		if (null == text || text.isEmpty()) {
 			log.error("Encryption Error : Empty or Null String");
 		} else {
-			text = DigestUtils.md5Hex(saltOne).concat(saltTwo).concat(text);
+			text = DigestUtils.md5Hex(saltOne.concat(saltTwo).concat(text));
 		}
 
 		return text;

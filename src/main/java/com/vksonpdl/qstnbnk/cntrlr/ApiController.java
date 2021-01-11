@@ -1,6 +1,5 @@
 package com.vksonpdl.qstnbnk.cntrlr;
 
-import java.net.InetAddress;
 import java.util.Date;
 
 
@@ -13,20 +12,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vksonpdl.qstnbnk.model.EncryptionResponse;
-import com.vksonpdl.qstnbnk.repo.CredentialsRepo;
 import com.vksonpdl.qstnbnk.util.HashingUtil;
 
-import lombok.extern.slf4j.Slf4j;
+
 
 @RestController
-@Slf4j
-public class HomeController {
+public class ApiController {
 
 	@Autowired
 	HashingUtil hashingUtil;
-	
-	@Autowired
-	CredentialsRepo credentialRepo;
 
 	@GetMapping()
 	public ResponseEntity<String> getMeHome() {
@@ -45,14 +39,7 @@ public class HomeController {
 		ResponseEntity<EncryptionResponse> response = new ResponseEntity<EncryptionResponse>(responsePayload,
 				HttpStatus.OK);
 
-		try {
-			String ip = InetAddress.getLocalHost().getHostAddress();
-			log.info("IP Address:{}", ip);
-			Long credentialsCount = credentialRepo.count();
-			log.info("CredentialsCount:{}", credentialsCount);
-		} catch (Exception e) {
-			log.warn("Exception While getting IP, Exception:{}", e.getMessage());
-		}
 		return response;
 	}
+	
 }
