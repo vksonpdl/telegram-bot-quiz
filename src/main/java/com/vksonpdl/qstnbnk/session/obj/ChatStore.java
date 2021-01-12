@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 
 import com.vksonpdl.qstnbnk.service.CredentialService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class ChatStore {
 
 	private static final Map<Long, ChatSession> CONVERSATION_OBJECT = new HashMap<Long, ChatSession>();
@@ -19,18 +22,21 @@ public class ChatStore {
 
 	private void addToChatStore(Long chatId) {
 		CONVERSATION_OBJECT.put(chatId, new ChatSession());
+		log.debug("chatId {} added to the session",chatId);
 	}
 	
 	public void startNewSession(Long chatId,String telId) {
 		if (credentialService.isCredentialExist(telId)) {
 			this.removeFromChatStore(chatId);
 			this.addToChatStore(chatId);
+			log.debug("renewed session for chatId {}",chatId);
 		}
 		
 	}
 
 	private void removeFromChatStore(Long chatId) {
 		CONVERSATION_OBJECT.remove(chatId);
+		log.debug("chatId {} removed from the session",chatId);
 	}
 	
 	private ChatSession getFromChatStore(Long chatId) {
@@ -41,7 +47,7 @@ public class ChatStore {
 	public boolean isQuizSessionExists(Long chatId, String telId) {
 		boolean returnStatus = false;
 		QuizStatus session = CONVERSATION_OBJECT.get(chatId).getQuizStatus();
-		if ((new Date().getTime() - session.getSessionStartTime()) <= session.getValidity()) {
+		if (null!=session && (new Date().getTime() - session.getSessionStartTime()) <= session.getValidity()) {
 			returnStatus = true;
 
 		} else  {
@@ -60,7 +66,7 @@ public class ChatStore {
 			if ((new Date().getTime() - session.getSessionStartTime()) <= session.getValidity()) {
 				returnStatus = true;
 
-			} else  {
+			} else if(null!=telId){
 				this.startNewSession(chatId,telId);
 				returnStatus = true;
 			}
@@ -83,7 +89,7 @@ public class ChatStore {
 	public boolean isReadyToUpdateQuestiontype(Long chatId) {
 		boolean readyToUpdateQuestiontype = false;
 		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
-		if(null!=quizStatus && quizStatus.isStartQuiz() && null==quizStatus.getQuizType()) {
+		if(this.isQuizSessionExists(chatId, null) && null!=quizStatus && quizStatus.isStartQuiz() && null==quizStatus.getQuizType()) {
 			readyToUpdateQuestiontype = true;
 		}
 		return readyToUpdateQuestiontype;
@@ -100,7 +106,7 @@ public class ChatStore {
 	public boolean isReadyToUpdateAnswer(Long chatId,String telId) {
 		boolean readyToUpdateQuestiontype = false;
 		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
-		if(quizStatus.getCurrentQId()>0 && this.isQuizSessionExists(chatId, telId)) {
+		if(this.isQuizSessionExists(chatId, null) && quizStatus.getCurrentQId()>0 && this.isQuizSessionExists(chatId, telId)) {
 			readyToUpdateQuestiontype = true;
 		}
 		return readyToUpdateQuestiontype;

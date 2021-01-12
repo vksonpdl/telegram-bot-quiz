@@ -11,6 +11,8 @@ spring:
   cache:
     jcache:
       config: classpath:ehcache.xml
+  jackson:
+    default-property-inclusion: NON_NULL
       
       
 #logging
@@ -28,3 +30,13 @@ telegram:
   bot:
     username: ${TELEGRAM_BOT_UN}
     token: ${TELEGRAM_BOT_TOKEN}
+    
+trivia:
+  host: https://opentdb.com  
+  path:
+    category: /api_category.php
+    category_count: /api_count.php?category=
+ 
+schdlr:
+  trivia:
+    qstntypes: '0 0 */6 * * *'
