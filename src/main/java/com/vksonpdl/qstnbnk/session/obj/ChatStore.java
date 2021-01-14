@@ -4,13 +4,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vksonpdl.qstnbnk.constant.QuizConstants;
 import com.vksonpdl.qstnbnk.model.TriviaQuestion;
 import com.vksonpdl.qstnbnk.service.CredentialService;
 import com.vksonpdl.qstnbnk.service.TriviaService;
+import com.vksonpdl.qstnbnk.tel.mg.MessageHelper;
+import com.vksonpdl.qstnbnk.util.HashingUtil;
 
 
 @Component
@@ -24,10 +28,14 @@ public class ChatStore {
 	@Autowired
 	TriviaService triviaService;
 	
+	@Autowired
+	HashingUtil hashingUtil;
+	
 
-	private void addToChatStore(Long chatId) {
+	private void addToChatStore(Long chatId,String telId) {
 		ChatSession chatSession =new ChatSession();
-		chatSession.setTriviaToken(triviaService.getTriviaToken());;
+		chatSession.setTriviaToken(triviaService.getTriviaToken());
+		chatSession.setTelUn(hashingUtil.doEncryption(telId));
 		
 		CONVERSATION_OBJECT.put(chatId, chatSession);
 	}
@@ -35,8 +43,13 @@ public class ChatStore {
 	public void startNewSession(Long chatId,String telId) {
 		if (credentialService.isCredentialExist(telId)) {
 			this.removeFromChatStore(chatId);
-			this.addToChatStore(chatId);
+			this.addToChatStore(chatId,telId);
 		}
+		
+	}
+	
+	public QuizStatus getQuizStatus(Long chatId) {
+		return CONVERSATION_OBJECT.get(chatId).getQuizStatus();
 		
 	}
 
@@ -44,7 +57,7 @@ public class ChatStore {
 		CONVERSATION_OBJECT.remove(chatId);
 	}
 	
-	private ChatSession getFromChatStore(Long chatId) {
+	public ChatSession getFromChatStore(Long chatId) {
 		return CONVERSATION_OBJECT.get(chatId);
 	
 	}
@@ -78,7 +91,7 @@ public class ChatStore {
 			}
 
 		} else if (credentialService.isCredentialExist(telId)) {
-			this.addToChatStore(chatId);
+			this.addToChatStore(chatId,telId);
 			session= this.getFromChatStore(chatId);
 		}
 
@@ -113,12 +126,53 @@ public class ChatStore {
 		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
 	}
 	
+	
+	
 
+	public void updateCurrentAnswerAndQuestionId(Long chatId, boolean isFirstQuestion) {
+
+		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
+
+		
+		if (!isFirstQuestion) {
+			int questionCount = quizStatus.getCurrentQId() + 1;
+			quizStatus.setCurrentQId(questionCount);
+		}
+
+		List<String> answerOptions = MessageHelper.getAnswerOptions();
+		String currentAnsOption = answerOptions.get(new Random().nextInt(answerOptions.size()));
+		quizStatus.setCurrentAns(currentAnsOption);
+
+		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
+
+	}
+	
+	public boolean updateAnswerStatusAndGetAvailableQuestionsCount(Long chatId,boolean isCorrectAnswer) {
+
+		boolean isQuestionsExceeded = false;
+		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
+		int validAnswerCount = quizStatus.getAnsrCountValid();
+		int InvalidAnswerCount = quizStatus.getAnsrCountInValid();
+
+		if (isCorrectAnswer) {
+			validAnswerCount++;
+			quizStatus.setAnsrCountValid(validAnswerCount);
+		}else {
+			InvalidAnswerCount++;
+			quizStatus.setAnsrCountInValid(InvalidAnswerCount);
+		}
+		if((validAnswerCount+InvalidAnswerCount)>=QuizConstants.QUIZ_QUSTION_COUNT) {
+			isQuestionsExceeded = true;
+		}
+
+		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
+		
+		return isQuestionsExceeded;
+	}
 	
 	public boolean isReadyToUpdateAnswer(Long chatId,String telId) {
 		boolean readyToUpdateQuestiontype = false;
-		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
-		if(this.isQuizSessionExists(chatId, null) && quizStatus.getCurrentQId()>0 && this.isQuizSessionExists(chatId, telId)) {
+		if(this.isQuizSessionExists(chatId, null) && null!=this.getFromChatStore(chatId).getQuizStatus().getCurrentAns()) {
 			readyToUpdateQuestiontype = true;
 		}
 		return readyToUpdateQuestiontype;

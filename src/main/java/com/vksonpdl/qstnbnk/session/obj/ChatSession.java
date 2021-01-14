@@ -19,6 +19,7 @@ public class ChatSession implements Serializable{
 		this.validity = Long.valueOf((1000*60*QuizConstants.QUIZ_QUSTION_COUNT)+(1000*60*5)); // 10 minutes
 	}
 	private static final long serialVersionUID = 1L;
+	private String telUn;
 	private QuizStatus quizStatus;
 	private Long sessionStartTime;
 	private Long validity;

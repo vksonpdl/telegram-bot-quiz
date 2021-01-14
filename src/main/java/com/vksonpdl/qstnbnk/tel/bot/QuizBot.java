@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import com.vksonpdl.qstnbnk.model.TriviaQuestion;
 import com.vksonpdl.qstnbnk.service.CredentialService;
+import com.vksonpdl.qstnbnk.service.QuestionService;
 import com.vksonpdl.qstnbnk.service.TriviaService;
 import com.vksonpdl.qstnbnk.session.obj.ChatSession;
 import com.vksonpdl.qstnbnk.session.obj.ChatStore;
@@ -54,6 +55,9 @@ public class QuizBot extends TelegramLongPollingBot {
 	@Autowired
 	TriviaService triviaService;
 	
+	@Autowired
+	QuestionService questionService;
+	
 	
 
 	@Override
@@ -89,16 +93,28 @@ public class QuizBot extends TelegramLongPollingBot {
 						
 						List<TriviaQuestion> triviaQuestions = triviaService.getTriviaQuestions(session.getTriviaToken(), session.getQuizStatus());
 						chatStore.updateSessionWithQuizTypeAndQuestions(chatId, messageText,triviaQuestions);
+						chatStore.updateCurrentAnswerAndQuestionId(chatId,true);
+						message.setText(messageHelperQuiz.getQuestion(telId,chatStore.getQuizStatus(chatId)));
 						
-						//TODO: Update get Question
-						
-					}else if(quizHelper.isAnswerType(messageText)) {
-						if(chatStore.isReadyToUpdateAnswer(chatId,telId)) {
-							//TODO: Update get Question
-						}else {
+					} else if (quizHelper.isAnswerType(messageText)) {
+						if (chatStore.isReadyToUpdateAnswer(chatId, telId)) {
+
+							boolean isValidAnswer = questionService.validateQuestionAnswer(session.getQuizStatus(),
+									messageText);
+							boolean isQuestionsExceeded = chatStore
+									.updateAnswerStatusAndGetAvailableQuestionsCount(chatId, isValidAnswer);
+
+							if (!isQuestionsExceeded) {
+								chatStore.updateCurrentAnswerAndQuestionId(chatId, false);
+							}
+
+							message.setText(messageHelperQuiz.getMessageForAnswering(telId, isValidAnswer,
+									isQuestionsExceeded, session.getQuizStatus()));
+
+						} else {
 							message.setText(messageHelperQuiz.getMessageForNotReadyToUpdateAnswer(telId));
 						}
-						
+
 					}else {
 						message.setText(messageHelperCredential.welcomeRegistredUserInvalidMessage(telId));
 					}
@@ -116,8 +132,10 @@ public class QuizBot extends TelegramLongPollingBot {
 			}
 
 			try {
+				
 
-				execute(message);
+
+			execute(message);
 			} catch (TelegramApiException e) {
 				log.error("TelegramApiException From onUpdateReceived() : {}", e.getMessage());
 			}

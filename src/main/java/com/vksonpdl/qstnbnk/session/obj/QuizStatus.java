@@ -21,11 +21,11 @@ public class QuizStatus implements Serializable{
 		this.sessionStartTime = new Date().getTime();
 		this.validity = Long.valueOf(1000*60*QuizConstants.QUIZ_QUSTION_COUNT); // 10 minutes
 	}
-	private String telUn;
-	private String telUnPlain;
-	private int ansValid;
-	private int ansInValid;
-	private long currentQId;
+	
+	private String currentAns;
+	private int ansrCountValid;
+	private int ansrCountInValid;
+	private int currentQId;
 	private boolean startQuiz;
 	private String quizType;
 	

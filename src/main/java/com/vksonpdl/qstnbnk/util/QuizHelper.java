@@ -41,10 +41,7 @@ public class QuizHelper {
 
 		boolean isAnswerType = false;
 
-		// TODO: Update MessageHelper.MESSAGE_OPTION_*
-		if (answerType.equals(MessageHelper.MESSAGE_OPTION_A) || answerType.equals(MessageHelper.MESSAGE_OPTION_B)
-				|| answerType.equals(MessageHelper.MESSAGE_OPTION_C)
-				|| answerType.equals(MessageHelper.MESSAGE_OPTION_D)) {
+		if (MessageHelper.getAnswerOptions().contains(answerType)) {
 			isAnswerType = true;
 		}
 

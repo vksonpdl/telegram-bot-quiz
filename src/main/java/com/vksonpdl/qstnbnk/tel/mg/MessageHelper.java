@@ -6,7 +6,7 @@ import java.util.List;
 public final class MessageHelper {
 
 	public final static String NEWLINE = "\n";
-	
+
 	public final static String MESSAGE_START = "/start";
 	public final static String MESSAGE_REGISTER = "/register";
 	public final static String MESSAGE_QUIZ_START = "/startQuiz";
@@ -14,13 +14,15 @@ public final class MessageHelper {
 	public final static String MESSAGE_EMAIL_REGISTER = "/registerEmail";
 	public final static String MESSAGE_EMAIL_VIEW = "/viewEmail";
 	public final static String MESSAGE_EMAIL_REPORT = "/sendReport";
-	
-	public final static String MESSAGE_OPTION_A = "/a ";
-	public final static String MESSAGE_OPTION_B = "/b ";
-	public final static String MESSAGE_OPTION_C = "/c ";
-	public final static String MESSAGE_OPTION_D = "/d ";
-	
-	public static final List<String> MESSAGE_OPLIONS_LIST= new ArrayList<>();
+
+	public static final List<String> getAnswerOptions() {
+		List<String> answerOptions = new ArrayList<>();
+		answerOptions.add("/a");
+		answerOptions.add("/b");
+		answerOptions.add("/c");
+		answerOptions.add("/d");
+		return answerOptions;
+	}
 
 	public final static String getBold(String text) {
 
