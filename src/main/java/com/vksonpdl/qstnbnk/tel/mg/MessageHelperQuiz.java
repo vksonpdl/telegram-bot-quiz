@@ -19,7 +19,7 @@ public class MessageHelperQuiz {
 	public String getQuizTypeSellectionMessage(String telId) {
 
 		TriviaQuestionCategoryResponse questionTypes = botCacheable.getQuestionTypes();
-		int count=1;
+
 
 		messageBuilder = new StringBuffer();
 		messageBuilder.append("Hi ").append(telId).append(MessageHelper.NEWLINE)
@@ -28,9 +28,8 @@ public class MessageHelperQuiz {
 		
 
 		for (TriviaQuestionCategory questionType : questionTypes.getTrivia_categories()) {
-			messageBuilder.append(count).append(") /").append(questionType.getId()).append(" : ").append(questionType.getName())
+			messageBuilder.append("/").append(questionType.getId()).append(" : ").append(questionType.getName())
 			.append(MessageHelper.NEWLINE);
-			count++;
 		}
 				
 		messageBuilder.append(MessageHelper.NEWLINE)

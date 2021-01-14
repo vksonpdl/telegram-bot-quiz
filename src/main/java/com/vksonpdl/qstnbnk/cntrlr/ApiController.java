@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vksonpdl.qstnbnk.model.EncryptionResponse;
 import com.vksonpdl.qstnbnk.util.HashingUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 
 @RestController
+@Slf4j
 public class ApiController {
 
 	@Autowired
@@ -24,6 +27,7 @@ public class ApiController {
 
 	@GetMapping()
 	public ResponseEntity<String> getMeHome() {
+		log.info("welcome home log");
 		String message = "TD ";
 		return new ResponseEntity<>(message, HttpStatus.OK);
 	}
