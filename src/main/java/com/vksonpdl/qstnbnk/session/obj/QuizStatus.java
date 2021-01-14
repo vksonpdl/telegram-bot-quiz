@@ -2,8 +2,10 @@ package com.vksonpdl.qstnbnk.session.obj;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.vksonpdl.qstnbnk.constant.QuizConstants;
+import com.vksonpdl.qstnbnk.model.TriviaQuestion;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +29,11 @@ public class QuizStatus implements Serializable{
 	private boolean startQuiz;
 	private String quizType;
 	
+	private List<TriviaQuestion> triviaQuestion;
+	
 	private Long sessionStartTime;
 	private Long validity;
+	
+	
 
 }

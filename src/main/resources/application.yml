@@ -36,6 +36,8 @@ trivia:
   path:
     category: /api_category.php
     category_count: /api_count.php?category=
+    token: /api_token.php?command=request
+    questions: /api.php
  
 schdlr:
   trivia:

@@ -1,5 +1,7 @@
 package com.vksonpdl.qstnbnk.tel.bot;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import com.vksonpdl.qstnbnk.model.TriviaQuestion;
 import com.vksonpdl.qstnbnk.service.CredentialService;
+import com.vksonpdl.qstnbnk.service.TriviaService;
+import com.vksonpdl.qstnbnk.session.obj.ChatSession;
 import com.vksonpdl.qstnbnk.session.obj.ChatStore;
 import com.vksonpdl.qstnbnk.tel.mg.MessageHelper;
 import com.vksonpdl.qstnbnk.tel.mg.MessageHelperCredential;
@@ -33,7 +38,7 @@ public class QuizBot extends TelegramLongPollingBot {
 
 	@Autowired
 	CredentialService credentialService;
-
+	
 	@Autowired
 	ChatStore chatStore;
 	
@@ -46,6 +51,9 @@ public class QuizBot extends TelegramLongPollingBot {
 	@Autowired
 	MessageHelperQuiz messageHelperQuiz;
 	
+	@Autowired
+	TriviaService triviaService;
+	
 	
 
 	@Override
@@ -55,12 +63,13 @@ public class QuizBot extends TelegramLongPollingBot {
 			String messageText = update.getMessage().getText();
 			String telId = update.getMessage().getFrom().getUserName();
 			Long chatId = update.getMessage().getChatId();
+			ChatSession session = chatStore.getSession(chatId, telId);
 
 			SendMessage message = new SendMessage();
 			message.setParseMode(ParseMode.HTML);
 			message.setChatId(update.getMessage().getChatId().toString());
 
-			if (chatStore.isSessionorUserExist(chatId, telId)) {
+			if (null!=session) {
 
 				switch (messageText) {
 				
@@ -77,7 +86,9 @@ public class QuizBot extends TelegramLongPollingBot {
 				default:
 					
 					if(quizHelper.isQuestionType(messageText) && chatStore.isReadyToUpdateQuestiontype(chatId)) {
-						chatStore.updateSessionWithQuizType(chatId, messageText);
+						
+						List<TriviaQuestion> triviaQuestions = triviaService.getTriviaQuestions(session.getTriviaToken(), session.getQuizStatus());
+						chatStore.updateSessionWithQuizTypeAndQuestions(chatId, messageText,triviaQuestions);
 						
 						//TODO: Update get Question
 						

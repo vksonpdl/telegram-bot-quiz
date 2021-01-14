@@ -2,41 +2,46 @@ package com.vksonpdl.qstnbnk.session.obj;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vksonpdl.qstnbnk.model.TriviaQuestion;
 import com.vksonpdl.qstnbnk.service.CredentialService;
+import com.vksonpdl.qstnbnk.service.TriviaService;
 
-import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
 public class ChatStore {
 
 	private static final Map<Long, ChatSession> CONVERSATION_OBJECT = new HashMap<Long, ChatSession>();
 
 	@Autowired
 	CredentialService credentialService;
+	
+	@Autowired
+	TriviaService triviaService;
+	
 
 	private void addToChatStore(Long chatId) {
-		CONVERSATION_OBJECT.put(chatId, new ChatSession());
-		log.debug("chatId {} added to the session",chatId);
+		ChatSession chatSession =new ChatSession();
+		chatSession.setTriviaToken(triviaService.getTriviaToken());;
+		
+		CONVERSATION_OBJECT.put(chatId, chatSession);
 	}
 	
 	public void startNewSession(Long chatId,String telId) {
 		if (credentialService.isCredentialExist(telId)) {
 			this.removeFromChatStore(chatId);
 			this.addToChatStore(chatId);
-			log.debug("renewed session for chatId {}",chatId);
 		}
 		
 	}
 
 	private void removeFromChatStore(Long chatId) {
 		CONVERSATION_OBJECT.remove(chatId);
-		log.debug("chatId {} removed from the session",chatId);
 	}
 	
 	private ChatSession getFromChatStore(Long chatId) {
@@ -57,26 +62,27 @@ public class ChatStore {
 		
 		return returnStatus;
 	}
-	public boolean isSessionorUserExist(Long chatId, String telId) {
+	public ChatSession getSession(Long chatId, String telId) {
 
-		boolean returnStatus = false;
+
+		ChatSession session =null;
 
 		if (CONVERSATION_OBJECT.keySet().contains(chatId)) {
-			ChatSession session = CONVERSATION_OBJECT.get(chatId);
-			if ((new Date().getTime() - session.getSessionStartTime()) <= session.getValidity()) {
-				returnStatus = true;
+			ChatSession sessionfromObj = CONVERSATION_OBJECT.get(chatId);
+			if ((new Date().getTime() - sessionfromObj.getSessionStartTime()) <= sessionfromObj.getValidity()) {
+				session = sessionfromObj;
 
 			} else if(null!=telId){
 				this.startNewSession(chatId,telId);
-				returnStatus = true;
+				session= this.getFromChatStore(chatId);
 			}
 
 		} else if (credentialService.isCredentialExist(telId)) {
 			this.addToChatStore(chatId);
-			returnStatus = true;
+			session= this.getFromChatStore(chatId);
 		}
 
-		return returnStatus;
+		return session;
 
 	}
 	
@@ -94,14 +100,20 @@ public class ChatStore {
 		}
 		return readyToUpdateQuestiontype;
 	}
-	public void updateSessionWithQuizType(Long chatId,String quizType) {
-		
+	
+	public void updateSessionWithQuizTypeAndQuestions(Long chatId, String quizType,
+			List<TriviaQuestion> triviaQuestion) {
+
 		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
+
 		quizStatus.setQuizType(quizType.replace("/", ""));
+		quizStatus.setTriviaQuestion(triviaQuestion);
 		quizStatus.setSessionStartTime(new Date().getTime());
-		
+
 		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
 	}
+	
+
 	
 	public boolean isReadyToUpdateAnswer(Long chatId,String telId) {
 		boolean readyToUpdateQuestiontype = false;
@@ -111,4 +123,6 @@ public class ChatStore {
 		}
 		return readyToUpdateQuestiontype;
 	}
+	
+
 }
