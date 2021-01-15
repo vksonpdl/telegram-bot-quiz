@@ -1,6 +1,6 @@
 package com.vksonpdl.qstnbnk.tel.bot;
 
-import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,16 +11,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import com.vksonpdl.qstnbnk.model.TriviaQuestion;
-import com.vksonpdl.qstnbnk.service.CredentialService;
-import com.vksonpdl.qstnbnk.service.QuestionService;
-import com.vksonpdl.qstnbnk.service.TriviaService;
-import com.vksonpdl.qstnbnk.session.obj.ChatSession;
 import com.vksonpdl.qstnbnk.session.obj.ChatStore;
-import com.vksonpdl.qstnbnk.tel.mg.MessageHelper;
 import com.vksonpdl.qstnbnk.tel.mg.MessageHelperCredential;
-import com.vksonpdl.qstnbnk.tel.mg.MessageHelperQuiz;
-import com.vksonpdl.qstnbnk.util.QuizHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,27 +30,19 @@ public class QuizBot extends TelegramLongPollingBot {
 	private String appName;
 
 	@Autowired
-	CredentialService credentialService;
-	
-	@Autowired
 	ChatStore chatStore;
-	
-	@Autowired
-	QuizHelper quizHelper;
 
 	@Autowired
 	MessageHelperCredential messageHelperCredential;
+
+	@Autowired
+	QuizBotMainCommandHelper quizBotMainCommandHelper;
 	
 	@Autowired
-	MessageHelperQuiz messageHelperQuiz;
+	QuizBotQuizCommandHelper quizBotQuizCommandHelper;
 	
 	@Autowired
-	TriviaService triviaService;
-	
-	@Autowired
-	QuestionService questionService;
-	
-	
+	QuizBotNonRegisteredCommandHelper quizBotNonRegisteredCommandHelper;
 
 	@Override
 	public void onUpdateReceived(Update update) {
@@ -67,75 +51,30 @@ public class QuizBot extends TelegramLongPollingBot {
 			String messageText = update.getMessage().getText();
 			String telId = update.getMessage().getFrom().getUserName();
 			Long chatId = update.getMessage().getChatId();
-			ChatSession session = chatStore.getSession(chatId, telId);
+
 
 			SendMessage message = new SendMessage();
 			message.setParseMode(ParseMode.HTML);
 			message.setChatId(update.getMessage().getChatId().toString());
+			String returnMessage = "TBD";
 
-			if (null!=session) {
+			if (null != chatStore.getSession(chatId, telId)) {
 
-				switch (messageText) {
-				
-				case MessageHelper.MESSAGE_START:
-					chatStore.startNewSession(chatId, telId);
-					message.setText(messageHelperCredential.welcomeRegistredUserMessage(telId));
-					break;
-					
-				case MessageHelper.MESSAGE_QUIZ_START:
-					chatStore.updateSessionWithQuizStatus(chatId);
-					message.setText(messageHelperQuiz.getQuizTypeSellectionMessage(telId));
-					break;
+				returnMessage = quizBotMainCommandHelper.getMessage(messageText, returnMessage, chatId, telId);
+				returnMessage = quizBotQuizCommandHelper.getMessage(messageText, returnMessage, chatId, telId);
 
-				default:
-					
-					if(quizHelper.isQuestionType(messageText) && chatStore.isReadyToUpdateQuestiontype(chatId)) {
-						
-						List<TriviaQuestion> triviaQuestions = triviaService.getTriviaQuestions(session.getTriviaToken(), session.getQuizStatus());
-						chatStore.updateSessionWithQuizTypeAndQuestions(chatId, messageText,triviaQuestions);
-						chatStore.updateCurrentAnswerAndQuestionId(chatId,true);
-						message.setText(messageHelperQuiz.getQuestion(telId,chatStore.getQuizStatus(chatId)));
-						
-					} else if (quizHelper.isAnswerType(messageText)) {
-						if (chatStore.isReadyToUpdateAnswer(chatId, telId)) {
-
-							boolean isValidAnswer = questionService.validateQuestionAnswer(session.getQuizStatus(),
-									messageText);
-							boolean isQuestionsExceeded = chatStore
-									.updateAnswerStatusAndGetAvailableQuestionsCount(chatId, isValidAnswer);
-
-							if (!isQuestionsExceeded) {
-								chatStore.updateCurrentAnswerAndQuestionId(chatId, false);
-							}
-
-							message.setText(messageHelperQuiz.getMessageForAnswering(telId, isValidAnswer,
-									isQuestionsExceeded, session.getQuizStatus()));
-
-						} else {
-							message.setText(messageHelperQuiz.getMessageForNotReadyToUpdateAnswer(telId));
-						}
-
-					}else {
-						message.setText(messageHelperCredential.welcomeRegistredUserInvalidMessage(telId));
-					}
-					
-					break;
+				if (returnMessage.equals("TBD")) {
+					returnMessage = messageHelperCredential.welcomeRegistredUserInvalidMessage(telId);
 				}
 
-			} else if (messageText.equals(MessageHelper.MESSAGE_REGISTER)){
-				
-				credentialService.createCredential(telId);
-				message.setText(messageHelperCredential.welcomeRegistredUserMessage(telId));
-				
-			}else {
-				message.setText(messageHelperCredential.welcomeNotRegistredUserMessage(telId));
+			}  else {
+				returnMessage = quizBotNonRegisteredCommandHelper.getMessage(messageText,returnMessage, chatId, telId);
 			}
 
 			try {
 				
-
-
-			execute(message);
+				message.setText(returnMessage);
+				execute(message);
 			} catch (TelegramApiException e) {
 				log.error("TelegramApiException From onUpdateReceived() : {}", e.getMessage());
 			}

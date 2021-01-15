@@ -28,6 +28,7 @@ public class QuizStatus implements Serializable{
 	private int currentQId;
 	private boolean startQuiz;
 	private String quizType;
+	private float score;
 	
 	private List<TriviaQuestion> triviaQuestion;
 	

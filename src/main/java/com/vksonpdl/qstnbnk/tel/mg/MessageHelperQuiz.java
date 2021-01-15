@@ -78,10 +78,10 @@ public class MessageHelperQuiz {
 		messageBuilder = new StringBuffer();
 		messageBuilder.append("Hi ").append(telId).append(MessageHelper.NEWLINE).append(MessageHelper.NEWLINE);
 		if (isValidAnswer) {
-			messageBuilder.append("Congragulations, the previous answer is Correct !").append(MessageHelper.NEWLINE)
+			messageBuilder.append(MessageHelper.getItalics("Congragulations, the previous answer was Correct !"))
 					.append(MessageHelper.NEWLINE);
 		} else {
-			messageBuilder.append("Sorry, the previous answer is incorrect !").append(MessageHelper.NEWLINE)
+			messageBuilder.append(MessageHelper.getItalics("Sorry, the previous answer was incorrect !"))
 					.append(MessageHelper.NEWLINE);
 		}
 		if (isQuestionsExceeded) {
@@ -115,6 +115,12 @@ public class MessageHelperQuiz {
 
 		Collections.sort(answers);
 
+		
+		messageBuilder
+			.append(MessageHelper.NEWLINE)
+			.append(status.getCurrentQId()+1).append(") Question: ").append(triviaQuestion.getQuestion())
+			.append(MessageHelper.NEWLINE);
+		
 		for (String answerOptiontoDisplay : answers) {
 			messageBuilder.append(answerOptiontoDisplay).append(MessageHelper.NEWLINE);
 		}
@@ -127,9 +133,12 @@ public class MessageHelperQuiz {
 	private String getQuizResults(QuizStatus status) {
 
 		StringBuffer messageBuilder = new StringBuffer();
-		messageBuilder.append("Total Questions: ").append(status.getCurrentQId() + 1).append(MessageHelper.NEWLINE)
-				.append("Correct Answers: ").append(status.getAnsrCountValid()).append(MessageHelper.NEWLINE)
-				.append("Incorrect Answers: ").append(status.getAnsrCountInValid()).append(MessageHelper.NEWLINE);
+		messageBuilder
+			.append(MessageHelper.getBold("Quiz is complete")).append(MessageHelper.NEWLINE)
+			.append(MessageHelper.NEWLINE).append("Total Questions: ").append(status.getCurrentQId() + 1).append(MessageHelper.NEWLINE)
+			.append("Correct Answers: ").append(status.getAnsrCountValid()).append(MessageHelper.NEWLINE)
+			.append("Incorrect Answers: ").append(status.getAnsrCountInValid()).append(MessageHelper.NEWLINE)
+			.append("Quiz Score(%): ").append(status.getScore()).append(MessageHelper.NEWLINE);
 
 		return messageBuilder.toString();
 	}

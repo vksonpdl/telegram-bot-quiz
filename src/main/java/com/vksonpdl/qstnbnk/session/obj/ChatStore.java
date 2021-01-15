@@ -1,5 +1,6 @@
 package com.vksonpdl.qstnbnk.session.obj;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -161,12 +162,19 @@ public class ChatStore {
 			InvalidAnswerCount++;
 			quizStatus.setAnsrCountInValid(InvalidAnswerCount);
 		}
-		if((validAnswerCount+InvalidAnswerCount)>=QuizConstants.QUIZ_QUSTION_COUNT) {
+		
+		DecimalFormat decimalFormat = new DecimalFormat();
+		decimalFormat.setMaximumFractionDigits(2);
+		Float score = (Float.valueOf(validAnswerCount)/Float.valueOf(validAnswerCount+InvalidAnswerCount))*Float.valueOf(100);
+		score = Float.valueOf(decimalFormat.format(score));
+		
+		quizStatus.setScore(score);
+		
+		if(! (quizStatus.getCurrentQId()<QuizConstants.QUIZ_QUSTION_COUNT)) {
 			isQuestionsExceeded = true;
 		}
 
-		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
-		
+		this.getFromChatStore(chatId).setQuizStatus(quizStatus);		
 		return isQuestionsExceeded;
 	}
 	

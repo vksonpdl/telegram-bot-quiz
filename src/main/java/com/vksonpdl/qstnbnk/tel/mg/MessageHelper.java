@@ -36,9 +36,22 @@ public final class MessageHelper {
 		return text;
 	}
 
-	public String getUnderLigned(String text) {
+	public final static String getUnderLigned(String text) {
 
 		text = "<u>".concat(text).concat("</u>");
 		return text;
 	}
+	
+	public final static String getErrorMessage(String text) {
+
+		text = "<u><font color='red'>".concat(text).concat("</font></u>");
+		return text;
+	}
+	
+	public final static String getSuccessMessage(String text) {
+
+		text = "<u><font color='green'>".concat(text).concat("</font></u>");
+		return text;
+	}
+	
 }

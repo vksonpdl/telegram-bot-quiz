@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableCaching
 @EnableScheduling
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class QuestionBankApplication {
 
 	public static void main(String[] args) {
