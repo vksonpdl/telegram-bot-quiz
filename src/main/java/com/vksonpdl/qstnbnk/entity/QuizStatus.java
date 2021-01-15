@@ -21,7 +21,10 @@ public class QuizStatus {
 	private ObjectId _id;
 	
 	private String telUn;
-	private int ansValid;
-	private int ansInValid;	
+	private int ansrCountValid;
+	private int ansrCountInValid;
+	private String quizType;
+	private float score;
 	private Date completionDate;
+
 }

@@ -2,9 +2,11 @@ package com.vksonpdl.qstnbnk.service.impl;
 
 import java.util.Date;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.vksonpdl.qstnbnk.cache.BotCacheable;
 import com.vksonpdl.qstnbnk.repo.QuizStatusRepo;
 import com.vksonpdl.qstnbnk.service.QuizStatusService;
 import com.vksonpdl.qstnbnk.session.obj.QuizStatus;
@@ -20,7 +22,10 @@ public class QuizStatusServiceImpl implements QuizStatusService {
 	QuizStatusRepo quizStatusRepo;
 	
 	@Autowired
-	HashingUtil hashingUtil; 
+	HashingUtil hashingUtil;
+	
+	@Autowired
+	BotCacheable botCacheable;
 	
 	@Override
 	public void saveQuizStatus(String telId, QuizStatus quizStatus) {
@@ -28,8 +33,8 @@ public class QuizStatusServiceImpl implements QuizStatusService {
 		try {
 			com.vksonpdl.qstnbnk.entity.QuizStatus statusToSave = new com.vksonpdl.qstnbnk.entity.QuizStatus();
 			
-			statusToSave.setAnsInValid(quizStatus.getAnsrCountInValid());
-			statusToSave.setAnsValid(quizStatus.getAnsrCountValid());
+			BeanUtils.copyProperties(quizStatus, statusToSave);
+			statusToSave.setQuizType(botCacheable.getQuestionTypes().get(Integer.parseInt(quizStatus.getQuizType())));
 			statusToSave.setTelUn(hashingUtil.doEncryption(telId));
 			statusToSave.setCompletionDate(new Date());
 			quizStatusRepo.save(statusToSave);

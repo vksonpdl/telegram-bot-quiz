@@ -7,7 +7,7 @@
 
     <cache alias="questionTypeCache">
         <key-type>java.lang.String</key-type>
-        <value-type>com.vksonpdl.qstnbnk.model.TriviaQuestionCategoryResponse</value-type>
+        <value-type>java.util.HashMap</value-type>
         <expiry>
             <ttl unit="minutes">420</ttl>
         </expiry>

@@ -2,7 +2,9 @@ package com.vksonpdl.qstnbnk.tel.mg;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,8 +12,6 @@ import org.springframework.stereotype.Component;
 import com.vksonpdl.qstnbnk.cache.BotCacheable;
 import com.vksonpdl.qstnbnk.constant.QuizConstants;
 import com.vksonpdl.qstnbnk.model.TriviaQuestion;
-import com.vksonpdl.qstnbnk.model.TriviaQuestionCategory;
-import com.vksonpdl.qstnbnk.model.TriviaQuestionCategoryResponse;
 import com.vksonpdl.qstnbnk.session.obj.QuizStatus;
 
 
@@ -27,17 +27,20 @@ public class MessageHelperQuiz {
 
 	public String getQuizTypeSellectionMessage(String telId) {
 
-		TriviaQuestionCategoryResponse questionTypes = botCacheable.getQuestionTypes();
+		HashMap<Integer, String> questionCategory = botCacheable.getQuestionTypes();
 
 		messageBuilder = new StringBuffer();
 		messageBuilder.append("Hi ").append(telId).append(MessageHelper.NEWLINE)
 				.append("Select Quiz Type from Below List !").append(MessageHelper.NEWLINE)
 				.append(MessageHelper.NEWLINE);
 
-		for (TriviaQuestionCategory questionType : questionTypes.getTrivia_categories()) {
-			messageBuilder.append("/").append(questionType.getId()).append(" : ").append(questionType.getName())
-					.append(MessageHelper.NEWLINE);
+		Set<Integer> questionCategoryKeys = questionCategory.keySet();
+		for (Integer questionCategoryKey : questionCategoryKeys) {
+			messageBuilder.append("/")
+				.append(questionCategoryKey).append(" : ").append(questionCategory.get(questionCategoryKey))
+				.append(MessageHelper.NEWLINE);
 		}
+
 
 		messageBuilder.append(MessageHelper.NEWLINE)
 				.append("There will be total " + QuizConstants.QUIZ_QUSTION_COUNT
@@ -135,7 +138,7 @@ public class MessageHelperQuiz {
 		StringBuffer messageBuilder = new StringBuffer();
 		messageBuilder
 			.append(MessageHelper.getBold("Quiz is complete")).append(MessageHelper.NEWLINE)
-			.append(MessageHelper.NEWLINE).append("Total Questions: ").append(status.getCurrentQId() + 1).append(MessageHelper.NEWLINE)
+			.append(MessageHelper.NEWLINE).append("Total Questions: ").append(status.getCurrentQId()).append(MessageHelper.NEWLINE)
 			.append("Correct Answers: ").append(status.getAnsrCountValid()).append(MessageHelper.NEWLINE)
 			.append("Incorrect Answers: ").append(status.getAnsrCountInValid()).append(MessageHelper.NEWLINE)
 			.append("Quiz Score(%): ").append(status.getScore()).append(MessageHelper.NEWLINE);

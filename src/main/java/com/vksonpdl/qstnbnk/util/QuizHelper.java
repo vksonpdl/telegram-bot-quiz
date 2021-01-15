@@ -1,13 +1,9 @@
 package com.vksonpdl.qstnbnk.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vksonpdl.qstnbnk.cache.BotCacheable;
-import com.vksonpdl.qstnbnk.model.TriviaQuestionCategory;
 import com.vksonpdl.qstnbnk.tel.mg.MessageHelper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +19,7 @@ public class QuizHelper {
 
 		boolean isQuestionType = false;
 		try {
-			List<TriviaQuestionCategory> questionCategoryList = botCacheable.getQuestionTypes().getTrivia_categories();
-			List<Integer> concat = questionCategoryList.stream().map(TriviaQuestionCategory::getId)
-					.collect(Collectors.toList());
-
-			if (concat.contains(Integer.parseInt(questionType.replace("/", "")))) {
+			if (botCacheable.getQuestionTypes().keySet().contains(Integer.parseInt(questionType.replace("/", "")))) {
 				isQuestionType = true;
 			}
 		} catch (Exception e) {

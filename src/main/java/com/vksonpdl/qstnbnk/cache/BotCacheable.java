@@ -1,7 +1,6 @@
 package com.vksonpdl.qstnbnk.cache;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,16 +21,16 @@ public class BotCacheable {
 	TriviaService triviaService;
 
 	@Cacheable(value = "questionTypeCache", key = "#root.methodName")
-	public TriviaQuestionCategoryResponse getQuestionTypes() {
-		TriviaQuestionCategoryResponse response = new TriviaQuestionCategoryResponse();
-		List<TriviaQuestionCategory> trivia_categories = new ArrayList<>();
+	public HashMap<Integer, String> getQuestionTypes() {
+
+		HashMap<Integer, String> questionCategory = new HashMap<>();
 
 		TriviaQuestionCategoryResponse responseFromService = triviaService.getQuestionCategory();
 
 		for (TriviaQuestionCategory triviaQuestionCategory : responseFromService.getTrivia_categories()) {
 			int questionsCount = triviaService.getQuestionCategoryCount(triviaQuestionCategory);
 			if (questionsCount >= (QuizConstants.QUIZ_QUSTION_COUNT * 2)) {
-				trivia_categories.add(triviaQuestionCategory);
+				questionCategory.put(triviaQuestionCategory.getId(), triviaQuestionCategory.getName());
 				log.info("Question category id:{} added  - questions count:{}", triviaQuestionCategory.getId(),
 						questionsCount);
 			} else {
@@ -39,10 +38,9 @@ public class BotCacheable {
 						triviaQuestionCategory.getId(), questionsCount);
 			}
 
-			response.setTrivia_categories(trivia_categories);
 		}
 
-		return response;
+		return questionCategory;
 	}
 
 }
