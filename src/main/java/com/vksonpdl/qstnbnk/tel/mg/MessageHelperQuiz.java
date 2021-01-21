@@ -98,6 +98,37 @@ public class MessageHelperQuiz {
 		return messageBuilder.toString();
 	}
 	
+	
+	public String getMessageForQuizResults(String telId, List<com.vksonpdl.qstnbnk.entity.QuizStatus> quizStatusList) {
+
+		messageBuilder = new StringBuffer();
+		messageBuilder.append("Hi ").append(telId).append(MessageHelper.NEWLINE).append(MessageHelper.NEWLINE);
+		int counter = 1;
+
+		if (quizStatusList.isEmpty()) {
+			messageBuilder.append("Seems you haven't completed any quiz !").append(MessageHelper.NEWLINE)
+					.append(MessageHelper.MESSAGE_QUIZ_START).append(" : to start Quiz");
+		} else {
+			messageBuilder.append("Below is the recent ").append(quizStatusList.size()).append(" Quiz Results")
+					.append(MessageHelper.NEWLINE);
+
+			for (com.vksonpdl.qstnbnk.entity.QuizStatus quizStatus : quizStatusList) {
+
+				messageBuilder.append(counter).append(") ----------------").append(MessageHelper.NEWLINE)
+						.append("Quiz Type: ").append(quizStatus.getQuizType()).append(MessageHelper.NEWLINE)
+						.append("Quiz Score: ").append(quizStatus.getScore()).append(" %").append(MessageHelper.NEWLINE)
+						.append("Completed On: ").append(quizStatus.getCompletionDate()).append(MessageHelper.NEWLINE)
+						.append(MessageHelper.NEWLINE);
+
+				counter++;
+			}
+
+			messageBuilder.append(MessageHelper.MESSAGE_START);
+		}
+
+		return messageBuilder.toString();
+	}
+	
 	private String getQuesionOptionstoDisplay(QuizStatus status) {
 
 		int counter = 0;
@@ -139,9 +170,10 @@ public class MessageHelperQuiz {
 		messageBuilder
 			.append(MessageHelper.getBold("Quiz is complete")).append(MessageHelper.NEWLINE)
 			.append(MessageHelper.NEWLINE).append("Total Questions: ").append(status.getCurrentQId()).append(MessageHelper.NEWLINE)
-			.append("Correct Answers: ").append(status.getAnsrCountValid()).append(MessageHelper.NEWLINE)
-			.append("Incorrect Answers: ").append(status.getAnsrCountInValid()).append(MessageHelper.NEWLINE)
-			.append("Quiz Score(%): ").append(status.getScore()).append(MessageHelper.NEWLINE);
+			.append(MessageHelper.getBold("Correct Answers: ")).append(status.getAnsrCountValid()).append(MessageHelper.NEWLINE)
+			.append(MessageHelper.getBold("Incorrect Answers: ")).append(status.getAnsrCountInValid()).append(MessageHelper.NEWLINE)
+			.append(MessageHelper.getBold("Quiz Score(%): ")).append(status.getScore()).append(MessageHelper.NEWLINE).append(MessageHelper.NEWLINE)
+			.append(MessageHelper.MESSAGE_START);
 
 		return messageBuilder.toString();
 	}

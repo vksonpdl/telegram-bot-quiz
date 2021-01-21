@@ -1,9 +1,14 @@
 package com.vksonpdl.qstnbnk.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.vksonpdl.qstnbnk.cache.BotCacheable;
@@ -20,6 +25,7 @@ public class QuizStatusServiceImpl implements QuizStatusService {
 
 	@Autowired
 	QuizStatusRepo quizStatusRepo;
+
 	
 	@Autowired
 	HashingUtil hashingUtil;
@@ -42,6 +48,20 @@ public class QuizStatusServiceImpl implements QuizStatusService {
 		}catch (Exception e) {
 			log.error("Exception while saving Quiz Status, Exception: {}",e.getMessage());
 		}
+	}
+
+	@Override
+	public List<com.vksonpdl.qstnbnk.entity.QuizStatus> getQuizStatus(String telId) {
+
+		List<com.vksonpdl.qstnbnk.entity.QuizStatus> quizStatusList = new ArrayList<>();
+
+		PageRequest page = PageRequest.of(0, 5);
+
+		Query query = new Query();
+		query.addCriteria(Criteria.where("").is(hashingUtil.doEncryption(telId)));
+		quizStatusList = quizStatusRepo.findSortedRecordsById(hashingUtil.doEncryption(telId), page);
+		
+		return quizStatusList;
 	}
 
 }

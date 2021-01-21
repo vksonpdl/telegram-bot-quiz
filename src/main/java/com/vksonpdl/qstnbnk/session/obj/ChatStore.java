@@ -130,7 +130,7 @@ public class ChatStore {
 	
 	
 
-	public void updateCurrentAnswerAndQuestionId(Long chatId, boolean isFirstQuestion) {
+	public void updateCurrentAnswerAndQuestionId(Long chatId, boolean isFirstQuestion,boolean isQuestionsExceeded) {
 
 		QuizStatus quizStatus = this.getFromChatStore(chatId).getQuizStatus();
 
@@ -140,9 +140,12 @@ public class ChatStore {
 			quizStatus.setCurrentQId(questionCount);
 		}
 
-		List<String> answerOptions = MessageHelper.getAnswerOptions();
-		String currentAnsOption = answerOptions.get(new Random().nextInt(answerOptions.size()));
-		quizStatus.setCurrentAns(currentAnsOption);
+		if(!isQuestionsExceeded) {
+			List<String> answerOptions = MessageHelper.getAnswerOptions();
+			String currentAnsOption = answerOptions.get(new Random().nextInt(answerOptions.size()));
+			quizStatus.setCurrentAns(currentAnsOption);
+		}
+		
 
 		this.getFromChatStore(chatId).setQuizStatus(quizStatus);
 
@@ -170,7 +173,7 @@ public class ChatStore {
 		
 		quizStatus.setScore(score);
 		
-		if(! (quizStatus.getCurrentQId()<QuizConstants.QUIZ_QUSTION_COUNT)) {
+		if(! ((quizStatus.getCurrentQId()+1)<QuizConstants.QUIZ_QUSTION_COUNT)) {
 			isQuestionsExceeded = true;
 		}
 

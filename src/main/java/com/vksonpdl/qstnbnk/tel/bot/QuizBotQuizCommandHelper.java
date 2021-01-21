@@ -53,7 +53,7 @@ public class QuizBotQuizCommandHelper {
 				List<TriviaQuestion> triviaQuestions = triviaService.getTriviaQuestions(session.getTriviaToken(),
 						session.getQuizStatus());
 				chatStore.updateSessionWithQuizTypeAndQuestions(chatId, messageText, triviaQuestions);
-				chatStore.updateCurrentAnswerAndQuestionId(chatId, true);
+				chatStore.updateCurrentAnswerAndQuestionId(chatId, true,false);
 				returnMessage = messageHelperQuiz.getQuestion(telId, chatStore.getQuizStatus(chatId));
 
 			} else if (quizHelper.isAnswerType(messageText)) {
@@ -63,16 +63,15 @@ public class QuizBotQuizCommandHelper {
 							questionService.validateQuestionAnswer(session.getQuizStatus(),messageText);
 					boolean isQuestionsExceeded = 
 							chatStore.updateAnswerStatusAndGetAvailableQuestionsCount(chatId,isValidAnswer);
+					chatStore.updateCurrentAnswerAndQuestionId(chatId, false,isQuestionsExceeded);
+					
 
 					returnMessage = messageHelperQuiz.getMessageForAnswering(telId, isValidAnswer, isQuestionsExceeded,
 							session.getQuizStatus());
 					
-					if (!isQuestionsExceeded) {
-						chatStore.updateCurrentAnswerAndQuestionId(chatId, false);
-
-					} else {
-						quizStatusService.saveQuizStatus(telId, chatStore.getQuizStatus(chatId));
-					}
+					if (isQuestionsExceeded) {
+						quizStatusService.saveQuizStatus(telId, chatStore.getQuizStatus(chatId));	
+					} 
 
 					
 
