@@ -20,7 +20,7 @@ logging:
   level:
     org:
       springframework:
-        data: debug
+        data: info
 
 salt:
   one: uG4fV6xB7kA3yL7h
